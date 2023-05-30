@@ -1,7 +1,8 @@
-const uuid = require('uuid')
+const uuid = require('uuid');
 const path = require('path');
-const { Users, Contests, Rating, Tasks, ContestUser } = require('../models/models')
+const { Users, Contests, Rating, Tasks, ContestUser } = require('../models/models');
 const ApiError = require('../error/ApiError');
+
 
 
 class TypeController {
@@ -12,11 +13,11 @@ class TypeController {
         const {f} = req.files
         let fileName = uuid.v4() + path.parse(f.name).ext;
         f.mv(path.resolve(__dirname, '..', 'static', fileName))
-        
+
         const isExists = await Contests.findOne({ where: { name } })
 
         if (isExists) {
-            return next(ApiError.badRequest('Проект с таким именем уже существует'))
+            return next(ApiError.badRequest('Проект c таким именем уже существует'))
         }
 
         const contest = await Contests.create({ name, description, workers, fileName });
@@ -29,6 +30,8 @@ class TypeController {
 
 
     async getAll(req, res) {
+
+
         let { limit, page } = req.query;
         page = page || 1;
         limit = limit || 8;

@@ -128,6 +128,34 @@ class UserController {
 
     }
 
+
+    async change_myself_inf_user(req, res) {
+
+        let { id, name, email, password } = req.body;
+        const token = req.headers.authorization.split(' ')[1] // Bearer asfasnfkajsfnjk
+
+        const decoded = jwt.verify(token, process.env.SECRET_KEY)        
+        let idshnik = decoded.id;
+    
+        if(password) {
+            const hashPassword = await bcrypt.hash(password, 5)
+            await ok.update({name, email, password: hashPassword});
+
+        }
+
+        const ok = await Users.findByPk(idshnik);
+
+        await ok.update({name, email});
+
+        return res.json("Инфа обновлена")
+
+
+
+    }
+
+
+
+
     async del_user(req, res) {
 
         let { id } = req.body;
@@ -177,6 +205,7 @@ class UserController {
     }
 
     async get_all_users(req, res) {
+
         let {page, limit } = req.query;
         page = page || 1;
         limit = limit || 8;

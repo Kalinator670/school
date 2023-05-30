@@ -13,10 +13,10 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-function sendEmail(task_id = undefined) {
+function sendEmail(task_id = undefined, to_exp = 'sutula05@bk.ru') {
     const mailOptions = {
         from: 'savelyev_av@edu.surgu.ru',
-        to: 'sutula05@bk.ru',
+        to: to_exp,
         subject: 'Привет',
         text: `Вам необходимо поставить рейтинг по такой ссылке https://host.com/rating?taskId=${task_id}`
     };
@@ -50,12 +50,28 @@ class TasksController {
             let d = new Date(stop)
             console.log(d.getMonth() + 1)
             console.log(d.getDate())
+
+            const experts = await Users.findAll({ where: { role: 'EXPERT' } });
+
+
+            try{
+            for(let i of experts){
+
             const schedule = cron.schedule(`59 11 5 ${d.getDate()} ${d.getMonth() + 1} *`, () => {
-                sendEmail(task.id)
+                sendEmail(task.id, i.email)
             });
             schedule.start();
+            
+            }
 
             return res.json('Проект успешно создан');
+        }catch{
+
+            return res.json('Не найдены эксперты');
+
+        }
+
+
         } catch (error) {
             return next(ApiError.internal('Ошибка создания задачи', error));
         }
@@ -63,6 +79,7 @@ class TasksController {
 
 
     async getAll(req, res) {
+
 
         let { limit, page } = req.query;
         page = page || 1;
